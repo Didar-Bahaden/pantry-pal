@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PantryPal - Your Digital Pantry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for theming */
+        :root {
+            --bg-color: #111111;
+            --card-color: #1E1E1E;
+            --primary-text-color: #E0E0E0;
+            --secondary-text-color: #A0A0A0;
+            --border-color: #2D2D2D;
+            --accent-color: #FF8C00; /* DarkOrange */
+            --accent-color-hover: #FFA500; /* Orange */
+            --danger-color: #D9534F;
+            --danger-color-hover: #C9302C;
+            --form-input-bg: #2D3748;
+            --form-input-border: #4A5568;
+            --button-secondary-bg: #4A5568;
+            --button-secondary-hover-bg: #2D3748;
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 256px;
+            background-color: var(--card-color);
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            padding: 1.5rem;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { padding: 1rem; }
+        }
+
+        /* Typography */
+        h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        h2 { font-size: 1.875rem; font-weight: 700; color: #fff; }
+        h3 { font-size: 1.125rem; font-weight: 600; }
+        p.subtitle { color: #a0aec0; margin-top: 0.25rem; }
+
+        /* Sidebar Navigation */
+        .sidebar nav { margin-top: 1.5rem; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary-text-color);
+            text-decoration: none;
+            transition: color 0.2s, background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+        .nav-link:first-child { margin-top: 0; }
+        .nav-link.active, .nav-link:hover {
+            color: var(--accent-color);
+            background-color: rgba(255, 140, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-primary { background-color: var(--accent-color); color: #ffffff; }
+        .btn-primary:hover { background-color: var(--accent-color-hover); }
+
+        .btn-secondary { background-color: var(--button-secondary-bg); color: #ffffff; }
+        .btn-secondary:hover { background-color: var(--button-secondary-hover-bg); }
+
+        .btn-danger { background-color: var(--danger-color); color: #ffffff; }
+        .btn-danger:hover { background-color: var(--danger-color-hover); }
+
+        /* Forms */
+        .form-input, .form-select {
+            background-color: var(--form-input-bg);
+            border: 1px solid var(--form-input-border);
+            color: var(--primary-text-color);
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        @media (max-width: 1024px) {
+            .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 768px) {
+            .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md-grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+            .sm-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        /* Page Headers */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .page-header .btn { margin-top: 1rem; }
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--card-color);
+            color: var(--primary-text-color);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem; /* 448px */
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .modal-footer {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Pantry Specific */
+        #category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            transition: background-color 0.2s, color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .filter-btn.active { background-color: var(--accent-color); color: #fff; }
+        .filter-btn.inactive { background-color: #374151; color: #d1d5db; }
+        .filter-btn.inactive:hover { background-color: #4b5563; }
+        
+        .pantry-item-card {
+            display: flex;
+            flex-direction: column;
+        }
+        .pantry-item-card .card-content { flex-grow: 1; }
+        .pantry-item-card .card-footer {
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0.25rem;
+            font-size: 1.2rem;
+        }
+        .action-btn:hover { color: var(--accent-color-hover); }
+        .expiry-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--secondary-text-color);
+            margin-top: 0.25rem;
+        }
+        .expiry-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+        }
+
+        /* Recipe Specific */
+        .recipe-search-card { margin-top: 1.5rem; }
+        .recipe-search-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .recipe-search-grid .form-input { grid-column: span 4; }
+        .recipe-search-grid .form-select { grid-column: span 2; }
+        .recipe-search-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .recipe-search-pantry-btn {
+            border-top: 1px solid var(--border-color);
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+        .recipe-search-pantry-btn .btn { width: 100%; padding: 0.75rem 1rem; }
+        
+        .recipe-card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(0);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .recipe-card:hover { transform: translateY(-4px); }
+        .recipe-card .img-container { position: relative; }
+        .recipe-card img {
+            width: 100%;
+            height: 12rem; /* 192px */
+            object-fit: cover;
+        }
+        .recipe-card .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        }
+        .recipe-card h3 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #fff;
+        }
+        .recipe-card .card-link {
+            padding: 1rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+        .recipe-card .card-link:hover { color: var(--accent-color-hover); }
+
+        #recipe-detail-modal .modal-content {
+            max-width: 56rem; /* 896px */
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #recipe-detail-modal .modal-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #recipe-detail-modal #close-recipe-modal {
+            font-size: 2rem;
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+        }
+        #recipe-detail-modal #recipe-modal-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        #recipe-detail-modal #recipe-modal-actions {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: #1f2937; /* gray-800 */
+        }
+        .recipe-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+        .recipe-detail-grid ul { list-style: none; padding: 0; }
+        .recipe-detail-grid li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .recipe-detail-grid li.have { color: #4ade80; } /* green-400 */
+        .recipe-detail-grid li.dont-have { color: #f87171; } /* red-400 */
+        .recipe-detail-grid .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
+        .recipe-detail-grid .status-dot.have { background-color: #22c55e; } /* green-500 */
+        .recipe-detail-grid .status-dot.dont-have { background-color: #ef4444; } /* red-500 */
+        .recipe-detail-grid p { white-space: pre-line; line-height: 1.6; color: var(--secondary-text-color); }
+
+        /* Meal Planner */
+        #meal-plan-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+        }
+        .day-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .day-header {
+            font-weight: 700;
+            text-align: center;
+            color: var(--secondary-text-color);
+            padding: 0.5rem 0;
+        }
+        .meal-slot {
+            background-color: var(--form-input-bg);
+            border: 2px dashed var(--form-input-border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+        }
+        .planned-meal-card {
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .planned-meal-card img {
+            width: 100%;
+            height: 5rem; /* 80px */
+            object-fit: cover;
+            border-radius: 0.375rem;
+        }
+        .planned-meal-card p {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .remove-meal {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Shopping List */
+        .shopping-list-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        .shopping-list-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .shopping-list-item input[type="checkbox"] {
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 0.25rem;
+            border-color: var(--form-input-border);
+            background-color: var(--form-input-bg);
+            color: var(--accent-color);
+        }
+        .shopping-list-item input:checked + label span {
+            text-decoration: line-through;
+            color: #718096;
+        }
+        .shopping-list-sidebar .card {
+            position: sticky;
+            top: 2rem;
+        }
+        .shopping-list-sidebar form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .shopping-list-sidebar .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .shopping-list-sidebar .btn { width: 100%; }
+        hr { border-color: var(--border-color); margin: 1.5rem 0; }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+        .loader {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <h1>PantryPal</h1>
+            <nav>
+                <a href="#" id="pantry-tab-btn" class="nav-link active"><span>&#129531;</span> My Pantry</a>
+                <a href="#" id="recipes-tab-btn" class="nav-link"><span>&#127828;</span> Find Recipes</a>
+                <a href="#" id="planner-tab-btn" class="nav-link"><span>&#128197;</span> Meal Planner</a>
+                <a href="#" id="shopping-tab-btn" class="nav-link"><span>&#128722;</span> Shopping List</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div id="pantry-view">
+                <div class="page-header">
+                    <div>
+                        <h2>My Pantry</h2>
+                        <p class="subtitle">An overview of all items you have at home.</p>
+                    </div>
+                    <button id="open-add-modal-btn" class="btn btn-primary">Add New Item</button>
+                </div>
+                <div id="category-filters"></div>
+                <div id="pantry-list-container">
+                    <div id="pantry-list" class="grid grid-cols-1 sm-grid-cols-2 lg-grid-cols-3 xl-grid-cols-4"></div>
+                    <div id="empty-pantry-message" class="text-center card hidden">
+                        <h3>Your pantry is empty</h3>
+                        <p class="subtitle">Click the "Add New Item" button to get started.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="recipes-view" class="hidden">
+                <div>
+                    <h2>Recipe Discovery</h2>
+                    <p class="subtitle">Explore thousands of recipes to find your next meal.</p>
+                </div>
+                <div class="card recipe-search-card">
+                    <div class="recipe-search-grid">
+                        <input type="text" id="recipe-search-input" class="form-input" placeholder="Search by recipe name or ingredient...">
+                        <select id="category-search-filter" class="form-select"><option value="">All Categories</option></select>
+                        <select id="area-search-filter" class="form-select"><option value="">All Cuisines</option></select>
+                    </div>
+                    <div class="recipe-search-buttons">
+                        <button id="search-by-name-btn" class="btn btn-primary">Search by Name</button>
+                        <button id="search-by-ingredient-btn" class="btn btn-secondary">Search by Ingredient</button>
+                    </div>
+                     <div class="recipe-search-pantry-btn">
+                        <button id="find-by-pantry-btn" class="btn btn-primary">Find Recipes Using My Pantry Items</button>
+                    </div>
+                </div>
+                <div id="recipe-loader" class="hidden text-center" style="margin: 2rem 0;">
+                    <div class="loader"></div>
+                    <p class="subtitle" style="margin-top: 1rem;">Searching for recipes...</p>
+                </div>
+                <div id="recipe-results" class="grid grid-cols-1 md-grid-cols-2 lg-grid-cols-3 xl-grid-cols-4" style="margin-top: 2rem;"></div>
+            </div>
+            <div id="planner-view" class="hidden">
+                <div style="margin-bottom: 1.5rem;">
+                    <h2>Weekly Meal Plan</h2>
+                    <p class="subtitle">View your planned meals for the week below.</p>
+                </div>
+                <div id="meal-plan-calendar"></div>
+            </div>
+            <div id="shopping-list-view" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h2>Shopping List</h2>
+                        <p class="subtitle">A smart list generated from your meal plan.</p>
+                    </div>
+                    <button id="generate-list-btn" class="btn btn-primary">Generate List from Meal Plan</button>
+                </div>
+                <div class="shopping-list-grid">
+                    <div class="card">
+                        <div id="shopping-list-content"></div>
+                    </div>
+                    <div class="shopping-list-sidebar">
+                        <div class="card">
+                            <h3>Add Custom Item</h3>
+                            <form id="add-shopping-item-form">
+                                <input id="manual-item-name" type="text" placeholder="e.g., Paper Towels" class="form-input" required>
+                                <button type="submit" class="btn btn-secondary">Add</button>
+                            </form>
+                            <hr>
+                            <div class="btn-group">
+                                <button id="clear-checked-btn" class="btn" style="background-color: #4b5563;">Clear Checked Items</button>
+                                <button id="clear-all-btn" class="btn btn-danger">Clear All</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="item-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title">Add New Item</h2>
+            <form id="item-form" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="item-id">
+                <div>
+                    <label for="item-name" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--secondary-text-color);">Item Name</label>
+                    <input type="text" id="item-name" required class="form-input" placeholder="e.g., Chicken Breast" style="margin-top: 0.25rem;">
+                </div>
+                <div>
+                    <label for="item-quantity" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--secondary-text-color);">Quantity</label>
+                    <input type="text" id="item-quantity" required class="form-input" placeholder="e.g., 2 lbs or 500g" style="margin-top: 0.25rem;">
+                </div>
+                <div>
+                    <label for="item-category" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--secondary-text-color);">Category</label>
+                    <select id="item-category" class="form-select" style="margin-top: 0.25rem;">
+                        <option>Produce</option><option>Dairy</option><option>Meat & Fish</option><option>Pantry Staples</option><option>Frozen</option><option>Spices</option><option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="item-expiry" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--secondary-text-color);">Expiration Date (Optional)</label>
+                    <input type="date" id="item-expiry" class="form-input" style="margin-top: 0.25rem;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-btn" class="btn" style="background-color: #4b5563;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 24rem;">
+            <h2>Confirm Deletion</h2>
+            <p class="subtitle" style="margin-top: 0.5rem; margin-bottom: 1.5rem;">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div class="modal-footer">
+                <button id="cancel-delete-btn" class="btn" style="background-color: #4b5563;">Cancel</button>
+                <button id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recipe-detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="recipe-modal-title">Recipe</h2>
+                <button id="close-recipe-modal">&times;</button>
+            </div>
+            <div id="recipe-modal-content"></div>
+            <div id="recipe-modal-actions"></div>
+        </div>
+    </div>
+
+    <div id="add-to-plan-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 24rem;">
+            <h2>Add to Meal Plan</h2>
+            <form id="add-to-plan-form" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                <select id="plan-day" class="form-select"></select>
+                <select id="plan-meal" class="form-select"></select>
+                <div class="modal-footer" style="padding-top: 1rem;">
+                    <button type="button" id="cancel-add-to-plan-btn" class="btn" style="background-color: #4b5563;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const views = { pantry: document.getElementById('pantry-view'), recipes: document.getElementById('recipes-view'), planner: document.getElementById('planner-view'), shopping: document.getElementById('shopping-list-view') };
+            const tabs = { pantry: document.getElementById('pantry-tab-btn'), recipes: document.getElementById('recipes-tab-btn'), planner: document.getElementById('planner-tab-btn'), shopping: document.getElementById('shopping-tab-btn') };
+            const openAddModalBtn = document.getElementById('open-add-modal-btn');
+            const pantryListDiv = document.getElementById('pantry-list');
+            const emptyPantryMessage = document.getElementById('empty-pantry-message');
+            const categoryFiltersDiv = document.getElementById('category-filters');
+            const itemModal = document.getElementById('item-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const itemForm = document.getElementById('item-form');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const itemIdInput = document.getElementById('item-id');
+            const itemNameInput = document.getElementById('item-name');
+            const itemQuantityInput = document.getElementById('item-quantity');
+            const itemCategoryInput = document.getElementById('item-category');
+            const itemExpiryInput = document.getElementById('item-expiry');
+            const confirmModal = document.getElementById('confirm-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            let itemToDelete = null;
+            const recipeSearchInput = document.getElementById('recipe-search-input');
+            const categorySearchFilter = document.getElementById('category-search-filter');
+            const areaSearchFilter = document.getElementById('area-search-filter');
+            const searchByNameBtn = document.getElementById('search-by-name-btn');
+            const searchByIngredientBtn = document.getElementById('search-by-ingredient-btn');
+            const findByPantryBtn = document.getElementById('find-by-pantry-btn');
+            const recipeLoader = document.getElementById('recipe-loader');
+            const recipeResultsDiv = document.getElementById('recipe-results');
+            const recipeDetailModal = document.getElementById('recipe-detail-modal');
+            const recipeModalTitle = document.getElementById('recipe-modal-title');
+            const recipeModalContent = document.getElementById('recipe-modal-content');
+            const recipeModalActions = document.getElementById('recipe-modal-actions');
+            const closeRecipeModalBtn = document.getElementById('close-recipe-modal');
+            const mealPlanCalendar = document.getElementById('meal-plan-calendar');
+            const addToPlanModal = document.getElementById('add-to-plan-modal');
+            const addToPlanForm = document.getElementById('add-to-plan-form');
+            const cancelAddToPlanBtn = document.getElementById('cancel-add-to-plan-btn');
+            const planDaySelect = document.getElementById('plan-day');
+            const planMealSelect = document.getElementById('plan-meal');
+            let recipeToAdd = null;
+            let pantry = JSON.parse(localStorage.getItem('pantryPalItems')) || [];
+            let mealPlan = JSON.parse(localStorage.getItem('pantryPalMealPlan')) || {};
+            let shoppingList = JSON.parse(localStorage.getItem('pantryPalShoppingList')) || [];
+            let currentFilter = 'All';
+            const categories = ['All', 'Produce', 'Dairy', 'Meat & Fish', 'Pantry Staples', 'Frozen', 'Spices', 'Other'];
+            const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const mealTypes = ['Breakfast', 'Lunch', 'Dinner'];
+            
+            const shoppingListContent = document.getElementById('shopping-list-content');
+            const generateListBtn = document.getElementById('generate-list-btn');
+            const addShoppingItemForm = document.getElementById('add-shopping-item-form');
+            const manualItemNameInput = document.getElementById('manual-item-name');
+            const clearCheckedBtn = document.getElementById('clear-checked-btn');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            
+            function savePantry() { localStorage.setItem('pantryPalItems', JSON.stringify(pantry)); }
+            function saveMealPlan() { localStorage.setItem('pantryPalMealPlan', JSON.stringify(mealPlan)); }
+            function saveShoppingList() { localStorage.setItem('pantryPalShoppingList', JSON.stringify(shoppingList)); }
+            function switchTab(t) { Object.values(views).forEach(v => v.classList.add('hidden')); Object.values(tabs).forEach(b => b.classList.remove('active')); views[t].classList.remove('hidden'); tabs[t].classList.add('active'); }
+            function openModal(m) { m.classList.add('visible'); }
+            function closeModal(m) { m.classList.remove('visible'); }
+
+            function renderMealPlan() {
+                mealPlanCalendar.innerHTML = '';
+                daysOfWeek.forEach(day => {
+                    const dayCol = document.createElement('div');
+                    dayCol.className = 'day-column';
+                    dayCol.innerHTML = `<div class="day-header">${day}</div>`;
+                    mealTypes.forEach(meal => {
+                        const slotId = `${day}-${meal}`;
+                        const plannedRecipe = mealPlan[slotId];
+                        const mealSlot = document.createElement('div');
+                        mealSlot.className = 'meal-slot';
+                        if (plannedRecipe) {
+                            mealSlot.innerHTML = `<div class="planned-meal-card"><img src="${plannedRecipe.image}" alt="${plannedRecipe.title}"><p>${plannedRecipe.title}</p><button class="remove-meal" data-slotid="${slotId}">×</button></div>`;
+                        } else {
+                            mealSlot.innerHTML = `<span style="font-size: 0.75rem; color: var(--secondary-text-color);">${meal}</span>`;
+                        }
+                        dayCol.appendChild(mealSlot);
+                    });
+                    mealPlanCalendar.appendChild(dayCol);
+                });
+            }
+
+            function renderPantry() {
+                pantryListDiv.innerHTML = '';
+                const filteredPantry = currentFilter === 'All' ? pantry : pantry.filter(item => item.category === currentFilter);
+                if (pantry.length === 0) {
+                    emptyPantryMessage.classList.remove('hidden');
+                    pantryListDiv.classList.add('hidden');
+                } else {
+                    emptyPantryMessage.classList.add('hidden');
+                    pantryListDiv.classList.remove('hidden');
+                    filteredPantry.sort((a, b) => (a.expiry && b.expiry) ? new Date(a.expiry) - new Date(b.expiry) : a.expiry ? -1 : b.expiry ? 1 : 0);
+                    filteredPantry.forEach(item => {
+                        const itemCard = document.createElement('div');
+                        itemCard.className = 'card pantry-item-card';
+                        const expiryDate = item.expiry ? new Date(item.expiry + 'T00:00:00') : null;
+                        let expiryHTML = '';
+                        if (expiryDate) {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const diffDays = Math.ceil((expiryDate - today) / 864e5);
+                            let color = '#22c55e'; // green-500
+                            if (diffDays < 0) color = '#ef4444'; // red-500
+                            else if (diffDays <= 7) color = '#f59e0b'; // amber-500
+                            expiryHTML = `<div class="expiry-indicator"><span class="expiry-dot" style="background-color: ${color};"></span><span>Expires: ${expiryDate.toLocaleDateString()}</span></div>`;
+                        }
+                        itemCard.innerHTML = `<div class="card-content"><span style="display: inline-block; background-color: #374151; color: #d1d5db; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 9999px; margin-bottom: 0.5rem;">${item.category}</span><h3>${item.name}</h3><p style="font-size: 0.875rem; color: var(--secondary-text-color);">${item.quantity}</p>${expiryHTML}</div><div class="card-footer"><button class="action-btn" data-id="${item.id}" aria-label="Edit item">&#9998;</button><button class="action-btn" data-id="${item.id}" aria-label="Delete item">&#10005;</button></div>`;
+                        pantryListDiv.appendChild(itemCard);
+                    });
+                }
+            }
+            
+            function renderFilters() {
+                categoryFiltersDiv.innerHTML = '';
+                categories.forEach(c => {
+                    const b = document.createElement('button');
+                    b.textContent = c;
+                    b.className = `filter-btn ${currentFilter===c?'active':'inactive'}`;
+                    b.dataset.filter = c;
+                    categoryFiltersDiv.appendChild(b);
+                });
+            }
+
+            function renderShoppingList() {
+                shoppingListContent.innerHTML = '';
+                if (shoppingList.length === 0) {
+                    shoppingListContent.innerHTML = `<p class="text-center" style="color: var(--secondary-text-color);">Your shopping list is empty. Add items manually or generate one from your meal plan.</p>`;
+                    return;
+                }
+                const grouped = shoppingList.reduce((acc, item) => {
+                    const category = item.category || 'From Recipes';
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(item);
+                    return acc;
+                }, {});
+
+                for (const category in grouped) {
+                    let itemsHtml = grouped[category].map(item => `<li class="shopping-list-item"><input type="checkbox" id="item-${item.id}" data-id="${item.id}" ${item.checked ? 'checked' : ''}><label for="item-${item.id}"><span>${item.name}</span></label></li>`).join('');
+                    shoppingListContent.innerHTML += `<div style="margin-bottom: 1rem;"><h3 style="margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem;">${category}</h3><ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem;">${itemsHtml}</ul></div>`;
+                }
+            }
+
+            async function populateFilters(){try{const[c,a]=await Promise.all([fetch('https://www.themealdb.com/api/json/v1/1/list.php?c=list'),fetch('https://www.themealdb.com/api/json/v1/1/list.php?a=list')]);const d=await c.json();const e=await a.json();d.meals.forEach(f=>categorySearchFilter.add(new Option(f.strCategory,f.strCategory)));e.meals.forEach(f=>areaSearchFilter.add(new Option(f.strArea,f.strArea)))}catch(e){console.error("Failed to load recipe filters",e)}}
+            async function fetchAndDisplayRecipes(url){recipeLoader.classList.remove('hidden');recipeResultsDiv.innerHTML='';try{const r=await fetch(url);if(!r.ok)throw new Error('Could not connect to the recipe service.');const d=await r.json();const m=d.meals;if(!m){recipeResultsDiv.innerHTML=`<p class="text-center" style="color: var(--secondary-text-color); grid-column: 1 / -1;">No recipes found. Try a different search.</p>`}else{m.forEach(p=>{const c=document.createElement('div');c.className='card recipe-card';c.dataset.recipeId=p.idMeal;c.innerHTML=`<div class="img-container"><img src="${p.strMealThumb}" alt="${p.strMeal}"><div class="overlay"></div><h3>${p.strMeal}</h3></div><a href="#" class="card-link">View Recipe &rarr;</a>`;recipeResultsDiv.appendChild(c)})}}catch(e){recipeResultsDiv.innerHTML=`<p class="text-center" style="color: var(--danger-color); grid-column: 1 / -1;">Error: ${e.message}</p>`}finally{recipeLoader.classList.add('hidden')}}
+            async function openRecipeDetail(id){recipeModalContent.innerHTML='<div class="loader"></div>';openModal(recipeDetailModal);try{const r=await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);const d=await r.json();const m=d.meals[0];recipeModalTitle.textContent=m.strMeal;let h='';const p=pantry.map(n=>n.name.toLowerCase());for(let i=1;i<=20;i++){const g=m[`strIngredient${i}`];const s=m[`strMeasure${i}`];if(g&&g.trim()){const t=p.some(n=>g.toLowerCase().includes(n)||n.includes(g.toLowerCase()));const statusClass = t ? 'have' : 'dont-have';h+=`<li class="${statusClass}"><span class="status-dot ${statusClass}"></span>${s} ${g}</li>`}}recipeModalContent.innerHTML=`<img src="${m.strMealThumb}" alt="${m.strMeal}" style="width: 100%; height: 16rem; object-fit: cover; border-radius: 0.5rem; margin-bottom: 1rem;"><div class="recipe-detail-grid"><div><h3>Ingredients</h3><ul style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem;">${h}</ul></div><div><h3>Instructions</h3><p>${m.strInstructions}</p>${m.strYoutube?`<a href="${m.strYoutube}" target="_blank" class="btn btn-danger" style="display: inline-block; margin-top: 1rem;">Watch on YouTube</a>`:''}</div></div>`;recipeModalActions.innerHTML=`<button id="add-recipe-to-plan-btn" class="btn btn-primary">Add to Meal Plan</button>`;recipeToAdd={id:m.idMeal,title:m.strMeal,image:m.strMealThumb}}catch(e){recipeModalContent.innerHTML='Could not load recipe details.'}}
+            
+            openAddModalBtn.addEventListener('click', () => { modalTitle.textContent = 'Add New Item'; itemForm.reset(); itemIdInput.value = ''; openModal(itemModal); });
+            itemForm.addEventListener('submit', e => { e.preventDefault(); const id = itemIdInput.value ? Number(itemIdInput.value) : Date.now(); const updatedItem = { id, name: itemNameInput.value.trim(), quantity: itemQuantityInput.value.trim(), category: itemCategoryInput.value, expiry: itemExpiryInput.value }; if (itemIdInput.value) { pantry = pantry.map(item => item.id === id ? updatedItem : item); } else { pantry.push(updatedItem); } savePantry(); renderPantry(); renderFilters(); closeModal(itemModal); });
+            pantryListDiv.addEventListener('click', e => { const editBtn = e.target.closest('[aria-label="Edit item"]'); if (editBtn) { const item = pantry.find(i => i.id === Number(editBtn.dataset.id)); modalTitle.textContent = 'Edit Item'; itemIdInput.value = item.id; itemNameInput.value = item.name; itemQuantityInput.value = item.quantity; itemCategoryInput.value = item.category; itemExpiryInput.value = item.expiry; openModal(itemModal); } const deleteBtn = e.target.closest('[aria-label="Delete item"]'); if (deleteBtn) { itemToDelete = Number(deleteBtn.dataset.id); openModal(confirmModal); } });
+            confirmDeleteBtn.addEventListener('click', () => { if (itemToDelete !== null) { pantry = pantry.filter(i => i.id !== itemToDelete); savePantry(); renderPantry(); renderFilters(); } closeModal(confirmModal); itemToDelete = null; });
+            cancelBtn.addEventListener('click', () => closeModal(itemModal));
+            cancelDeleteBtn.addEventListener('click', () => closeModal(confirmModal));
+            categoryFiltersDiv.addEventListener('click', e => { if (e.target.tagName === 'BUTTON') { currentFilter = e.target.dataset.filter; renderFilters(); renderPantry(); } });
+            Object.keys(tabs).forEach(k => tabs[k].addEventListener('click', e => { e.preventDefault(); switchTab(k); }));
+            searchByNameBtn.addEventListener('click', () => { const s = recipeSearchInput.value.trim(); if (s) fetchAndDisplayRecipes(`https://www.themealdb.com/api/json/v1/1/search.php?s=${s}`); });
+            searchByIngredientBtn.addEventListener('click', () => { const i = recipeSearchInput.value.trim(); if (i) fetchAndDisplayRecipes(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${i}`); });
+            [categorySearchFilter, areaSearchFilter].forEach(f => f.addEventListener('change', () => { const c = categorySearchFilter.value, a = areaSearchFilter.value; if (f.id === 'category-search-filter' && c) { areaSearchFilter.value = ''; fetchAndDisplayRecipes(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${c}`); } else if (f.id === 'area-search-filter' && a) { categorySearchFilter.value = ''; fetchAndDisplayRecipes(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${a}`); } }));
+            findByPantryBtn.addEventListener('click', () => { if (pantry.length > 0) { const i = pantry[0].name.toLowerCase().split(' ')[0]; fetchAndDisplayRecipes(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${i}`); } else { recipeResultsDiv.innerHTML = `<p class="text-center" style="color: var(--secondary-text-color); grid-column: 1 / -1;">Add items to your pantry first!</p>`; } });
+            recipeResultsDiv.addEventListener('click', e => { const card = e.target.closest('[data-recipe-id]'); if (card) openRecipeDetail(card.dataset.recipeId); });
+            closeRecipeModalBtn.addEventListener('click', () => closeModal(recipeDetailModal));
+            recipeModalActions.addEventListener('click', e => { if (e.target.id === 'add-recipe-to-plan-btn') { planDaySelect.innerHTML = ''; daysOfWeek.forEach(d => planDaySelect.add(new Option(d, d))); planMealSelect.innerHTML = ''; mealTypes.forEach(m => planMealSelect.add(new Option(m, m))); openModal(addToPlanModal); } });
+            addToPlanForm.addEventListener('submit', e => { e.preventDefault(); const day = planDaySelect.value; const meal = planMealSelect.value; const slotId = `${day}-${meal}`; mealPlan[slotId] = recipeToAdd; saveMealPlan(); renderMealPlan(); closeModal(addToPlanModal); closeModal(recipeDetailModal); });
+            cancelAddToPlanBtn.addEventListener('click', () => closeModal(addToPlanModal));
+            mealPlanCalendar.addEventListener('click', e => { const removeBtn = e.target.closest('.remove-meal'); if (removeBtn) { const slotId = removeBtn.dataset.slotid; delete mealPlan[slotId]; saveMealPlan(); renderMealPlan(); } });
+            generateListBtn.addEventListener('click', async () => {
+                const button = generateListBtn;
+                button.textContent = 'Generating...'; button.disabled = true;
+                const neededIngredients = new Set();
+                const pantryItemNamesLower = pantry.map(i => i.name.toLowerCase());
+
+                for (const slotId in mealPlan) {
+                    const recipe = mealPlan[slotId];
+                    try {
+                        const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe.id}`);
+                        const data = await res.json();
+                        if (data.meals) {
+                            const fullRecipe = data.meals[0];
+                            for(let i = 1; i <= 20; i++) {
+                                const ingredient = fullRecipe[`strIngredient${i}`];
+                                if (ingredient && ingredient.trim()) {
+                                    neededIngredients.add(ingredient.toLowerCase());
+                                }
+                            }
+                        }
+                    } catch (e) { console.error("Could not fetch recipe details for list", e); }
+                }
+
+                const missingIngredients = [...neededIngredients].filter(recipeIng => {
+                    return !pantryItemNamesLower.some(pantryItem => recipeIng.includes(pantryItem));
+                });
+                
+                shoppingList = missingIngredients.map(name => ({ id: Date.now() + Math.random(), name, checked: false, category: 'From Meal Plan' }));
+                
+                saveShoppingList();
+                renderShoppingList();
+                button.textContent = 'Generate List from Meal Plan';
+                button.disabled = false;
+            });
+            addShoppingItemForm.addEventListener('submit', e => { e.preventDefault(); const name = manualItemNameInput.value.trim(); if (name) { shoppingList.push({ id: Date.now(), name, checked: false, category: 'Manual Additions' }); saveShoppingList(); renderShoppingList(); manualItemNameInput.value = ''; } });
+            shoppingListContent.addEventListener('change', e => { if (e.target.type === 'checkbox') { const itemId = Number(e.target.dataset.id); const item = shoppingList.find(i => i.id === itemId); if (item) { item.checked = e.target.checked; saveShoppingList(); renderShoppingList(); } } });
+            clearCheckedBtn.addEventListener('click', () => { shoppingList = shoppingList.filter(item => !item.checked); saveShoppingList(); renderShoppingList(); });
+            clearAllBtn.addEventListener('click', () => { if (confirm('Are you sure you want to clear the entire shopping list?')) { shoppingList = []; saveShoppingList(); renderShoppingList(); } });
+            
+            // --- Initial Setup ---
+            populateFilters();
+            renderFilters();
+            renderPantry();
+            renderMealPlan();
+            renderShoppingList();
+            switchTab('pantry');
+        });
+    </script>
+</body>
+</html>
